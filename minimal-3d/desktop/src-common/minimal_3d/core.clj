@@ -1,8 +1,10 @@
 (ns minimal-3d.core
-  (:require [play-clj.core :refer :all]
-            [play-clj.g3d :refer :all]
-            [play-clj.math :refer :all]
-            [play-clj.ui :refer :all]))
+  (:require [kludge.core :refer :all]
+            [kludge.g3d :refer :all]
+            [kludge.entities :as e]
+            [kludge.utils :as u]
+            [kludge.math :refer :all]
+            [kludge.ui :refer :all]))
 
 (defscreen main-screen
   :on-show
@@ -21,10 +23,10 @@
           model-mat (material :set attr)
           model-attrs (bit-or (usage :position) (usage :normal))
           builder (model-builder)]
-      (-> (model-builder! builder :create-box 2 2 2 model-mat model-attrs)
+      (e/create-entity {} (-> (model-builder! builder :create-box 2 2 2 model-mat model-attrs)
           model
-          (assoc :x 0 :y 0 :z 0))))
-  
+          (assoc :x 0 :y 0 :z 0)))))
+
   :on-render
   (fn [screen entities]
     (clear! 1 1 1 1)
@@ -37,18 +39,18 @@
   :on-show
   (fn [screen entities]
     (update! screen :camera (orthographic) :renderer (stage))
-    (assoc (label "0" (color :black))
+    (e/create-entity {} (assoc (label "0" (color :black))
            :id :fps
-           :x 5))
-  
+           :x 5)))
+
   :on-render
   (fn [screen entities]
-    (->> (for [entity entities]
+    (->> (u/mmap (fn [entity]
            (case (:id entity)
              :fps (doto entity (label! :set-text (str (game :fps))))
-             entity))
+             entity)) entities)
          (render! screen)))
-  
+
   :on-resize
   (fn [screen entities]
     (height! screen 300)))
