@@ -1,5 +1,6 @@
 (ns dungeon-crawler.entities
   (:require [dungeon-crawler.utils :as u]
+            [kludge.utils :as ku]
             [kludge.core :refer :all]
             [kludge.g2d :refer :all]))
 
@@ -144,7 +145,7 @@
 
 (defn attack
   [screen {:keys [x y x-feet y-feet damage] :as attacker} victim entities]
-  (map (fn [{:keys [id direction] :as e}]
+  (ku/mmap (fn [{:keys [id direction] :as e}]
          (cond
            (= id (:id attacker))
            (let [direction (or (when victim
@@ -180,7 +181,7 @@
          (isometric->screen screen {:x tile-x :y tile-y}))
        shuffle
        (drop-while
-         #(or (u/near-entity? (merge entity %) (find-first :player? entities) 5)
+         #(or (u/near-entity? (merge entity %) (find-first :player? (vals entities)) 5)
               (u/invalid-location? screen entities (merge entity %))))
        first
        (merge entity)))

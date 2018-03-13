@@ -69,7 +69,7 @@
   :on-render
   (fn [screen entities]
     (clear!)
-    (let [me (find-first :player? entities)]
+    (let [me (find-first :player? (vals entities))]
       (screen! overlay-screen :on-update-health-bar :entity me)
       (->> entities
            (ku/mmap (fn [entity]
@@ -78,7 +78,7 @@
                        (e/animate screen)
                        (e/prevent-move screen entities)
                        (e/adjust screen))))
-           (e/attack screen (find-first #(u/can-attack? % me) entities) me)
+           (e/attack screen (find-first #(u/can-attack? % me) (vals entities)) me)
            play-sounds!
            (render-everything! screen)
            (update-screen! screen))))

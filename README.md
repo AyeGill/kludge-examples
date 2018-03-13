@@ -3,11 +3,13 @@ This repository provides public domain examples of games using [kludge](https://
 
 These examples are copied from the [play-clj examples](https://github.com/oakes/play-clj-examples).
 
-This should be viewed as a sort of test suite 
+This should be viewed as a sort of test suite
 
 ## Contents
 
 * **breakout** - an arcade game based on the Atari classic
+
+## Contents, but they haven't been modified to work with kludge (yet)
 * **dungeon-crawler** - an isometric Diablo-style game with a randomized level
 * **minicraft** - an RPG based on Notch's [Ludum Dare entry](http://www.ludumdare.com/compo/ludum-dare-22/?action=preview&uid=398)
 * **minicraft-online** - an online version of minicraft
