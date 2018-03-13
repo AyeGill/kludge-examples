@@ -1,9 +1,10 @@
 (ns breakout.core
-  (:require [play-clj.core :refer :all]
-            [play-clj.g2d :refer :all]
-            [play-clj.g2d-physics :refer :all]
-            [play-clj.math :refer :all]
-            [play-clj.ui :refer :all]))
+  (:require [kludge.core :refer :all]
+            [kludge.g2d :refer :all]
+            [kludge.entities :as e]
+            [kludge.g2d-physics :refer :all]
+            [kludge.math :refer :all]
+            [kludge.ui :refer :all]))
 
 (declare breakout main-screen text-screen)
 
@@ -49,7 +50,7 @@
 
 (defn move-paddle!
   [entities]
-  (when-let [entity (find-first :paddle? entities)]
+  (when-let [entity (find-first :paddle? (vals entities))]
     (body-x! entity (- (/ (game :x) pixels-per-tile) (/ (:width entity) 2)))))
 
 (defscreen main-screen
@@ -89,7 +90,7 @@
                              :max-length 5
                              :collide-connected true))
       ; return the entities
-      [(assoc ball :ball? true)
+      (e/create-entities entities [(assoc ball :ball? true)
        (assoc paddle :paddle? true)
        (assoc wall :wall? true)
        (assoc floor :floor? true)
@@ -99,25 +100,25 @@
                    y (+ (* row block-h) (- game-h (* block-h block-rows)))]]
          (assoc (doto (create-rect-entity! screen block block-w block-h)
                   (body-position! x y 0))
-                :block? true))]))
-  
+                :block? true))])))
+
   :on-render
   (fn [screen entities]
     (clear!)
     (->> entities
          (step! screen)
          (render! screen)))
-  
+
   :on-mouse-moved
   (fn [screen entities]
     (move-paddle! entities)
     nil)
-  
+
   :on-touch-dragged
   (fn [screen entities]
     (move-paddle! entities)
     nil)
-  
+
   :on-begin-contact
   (fn [screen entities]
     (when-let [entity (first-entity screen entities)]
@@ -134,7 +135,7 @@
     (assoc (label "0" (color :white))
            :id :fps
            :x 5))
-  
+
   :on-render
   (fn [screen entities]
     (->> (for [entity entities]
@@ -142,7 +143,7 @@
              :fps (doto entity (label! :set-text (str (game :fps))))
              entity))
          (render! screen)))
-  
+
   :on-resize
   (fn [screen entities]
     (height! screen 300)))

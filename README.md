@@ -1,5 +1,7 @@
-## play-clj-examples
-This repository provides public domain examples of games using [play-clj](https://github.com/oakes/play-clj).
+## kludge-examples
+This repository provides public domain examples of games using [kludge](https://github.com/ayegill/kludge).
+
+These examples are copied from the [play-clj examples](https://github.com/oakes/play-clj-examples)
 
 ## Contents
 
@@ -12,7 +14,3 @@ This repository provides public domain examples of games using [play-clj](https:
 * **minimal-3d-physics** - a simple 3D example with physics
 * **super-koalio** - a platformer based on a [test game](https://github.com/libgdx/libgdx/blob/master/tests/gdx-tests/src/com/badlogic/gdx/tests/superkoalio/SuperKoalio.java) with time travel added
 * **ui-gallery** - a random assortment of UI widgets (for start screens, settings, etc)
-
-## Licensing
-
-All files that originate from this project are dedicated to the public domain. I would love pull requests, and will assume that they are also dedicated to the public domain.
