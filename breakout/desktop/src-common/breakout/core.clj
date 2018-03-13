@@ -2,6 +2,7 @@
   (:require [kludge.core :refer :all]
             [kludge.g2d :refer :all]
             [kludge.entities :as e]
+            [kludge.utils :as u]
             [kludge.g2d-physics :refer :all]
             [kludge.math :refer :all]
             [kludge.ui :refer :all]))
@@ -90,7 +91,7 @@
                              :max-length 5
                              :collide-connected true))
       ; return the entities
-      (e/create-entities entities [(assoc ball :ball? true)
+      (reduce e/create-entity {} (flatten [(assoc ball :ball? true)
        (assoc paddle :paddle? true)
        (assoc wall :wall? true)
        (assoc floor :floor? true)
@@ -100,7 +101,7 @@
                    y (+ (* row block-h) (- game-h (* block-h block-rows)))]]
          (assoc (doto (create-rect-entity! screen block block-w block-h)
                   (body-position! x y 0))
-                :block? true))])))
+                :block? true))]))))
 
   :on-render
   (fn [screen entities]
@@ -123,25 +124,26 @@
   (fn [screen entities]
     (when-let [entity (first-entity screen entities)]
       (cond
-        (:floor? entity)
+        (:floor? (get entities entity))
         (set-screen! breakout main-screen text-screen)
-        (:block? entity)
-        (remove #(= entity %) entities)))))
+        (:block? (get entities entity))
+        (remove #(= entity (key %)) entities)))))
 
 (defscreen text-screen
   :on-show
   (fn [screen entities]
     (update! screen :camera (orthographic) :renderer (stage))
-    (assoc (label "0" (color :white))
+    (e/create-entity entities (assoc (label "0" (color :white))
            :id :fps
-           :x 5))
+           :x 5)))
 
   :on-render
   (fn [screen entities]
-    (->> (for [entity entities]
-           (case (:id entity)
-             :fps (doto entity (label! :set-text (str (game :fps))))
-             entity))
+    (->> (u/mmap (fn [e]
+                   (case (:id e)
+                      :fps (doto e (label! :set-text (str (game :fps))))
+                      e))
+                 entities)
          (render! screen)))
 
   :on-resize

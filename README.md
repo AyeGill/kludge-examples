@@ -1,7 +1,9 @@
 ## kludge-examples
 This repository provides public domain examples of games using [kludge](https://github.com/ayegill/kludge).
 
-These examples are copied from the [play-clj examples](https://github.com/oakes/play-clj-examples)
+These examples are copied from the [play-clj examples](https://github.com/oakes/play-clj-examples).
+
+This should be viewed as a sort of test suite 
 
 ## Contents
 
