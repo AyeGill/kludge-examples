@@ -33,17 +33,13 @@
   :on-show
   (fn [screen entities]
     (update! screen :camera (orthographic) :renderer (stage))
-    (e/create-entity {} (assoc (label "0" (color :black))
-           :id :fps
+    (e/create-entity {} (e/entity-uid :fps) (assoc (label "0" (color :black))
            :x 5)))
 
   :on-render
   (fn [screen entities]
-    (->> (u/mmap (fn [entity]
-           (case (:id entity)
-             :fps (doto entity (label! :set-text (str (game :fps))))
-             entity)) entities)
-         (render! screen)))
+    (doto (get entities (e/entity-uid :fps)) (label! :set-text (str (game :fps))))
+    (render! screen entities))
 
   :on-resize
   (fn [screen entities]
