@@ -1,8 +1,10 @@
 (ns minimal-3d-model.core
-  (:require [play-clj.core :refer :all]
-            [play-clj.g3d :refer :all]
-            [play-clj.math :refer :all]
-            [play-clj.ui :refer :all]))
+  (:require [kludge.core :refer :all]
+            [kludge.entities :as e]
+            [kludge.utils :as u]
+            [kludge.g3d :refer :all]
+            [kludge.math :refer :all]
+            [kludge.ui :refer :all]))
 
 (def manager (asset-manager))
 (set-asset-manager! manager)
@@ -17,8 +19,8 @@
                        (direction! 0 0 0)
                        (near! 0.1)
                        (far! 300)))
-    (model "knight.g3dj"))
-  
+    (e/create-entity {} (model "knight.g3dj")))
+
   :on-render
   (fn [screen entities]
     (clear! 1 1 1 1)
@@ -31,18 +33,18 @@
   :on-show
   (fn [screen entities]
     (update! screen :camera (orthographic) :renderer (stage))
-    (assoc (label "0" (color :black))
+    (e/create-entity {} (assoc (label "0" (color :black))
            :id :fps
-           :x 5))
-  
+           :x 5)))
+
   :on-render
   (fn [screen entities]
-    (->> (for [entity entities]
+    (->> (u/mmap (fn [entity]
            (case (:id entity)
              :fps (doto entity (label! :set-text (str (game :fps))))
-             entity))
+             entity)) entities)
          (render! screen)))
-  
+
   :on-resize
   (fn [screen entities]
     (height! screen 300)))
