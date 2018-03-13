@@ -1,7 +1,7 @@
 (ns dungeon-crawler.entities
   (:require [dungeon-crawler.utils :as u]
-            [play-clj.core :refer :all]
-            [play-clj.g2d :refer :all]))
+            [kludge.core :refer :all]
+            [kludge.g2d :refer :all]))
 
 (defn create
   [grid mask-size]

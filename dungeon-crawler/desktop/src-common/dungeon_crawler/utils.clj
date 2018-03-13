@@ -1,7 +1,7 @@
 (ns dungeon-crawler.utils
-  (:require [play-clj.core :refer :all]
-            [play-clj.g2d :refer :all]
-            [play-clj.math :refer :all]))
+  (:require [kludge.core :refer :all]
+            [kludge.g2d :refer :all]
+            [kludge.math :refer :all]))
 
 (def ^:const vertical-tiles 4)
 (def ^:const pixels-per-tile 64)

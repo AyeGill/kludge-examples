@@ -2,9 +2,11 @@
   (:require [dungeon-crawler.entities :as e]
             [dungeon-crawler.rooms :as r]
             [dungeon-crawler.utils :as u]
-            [play-clj.core :refer :all]
-            [play-clj.g2d :refer :all]
-            [play-clj.ui :refer :all])
+            [kludge.core :refer :all]
+            [kludge.utils :as ku]
+            [kludge.entities :as ke]
+            [kludge.g2d :refer :all]
+            [kludge.ui :refer :all])
   (:import [com.badlogic.gdx.graphics Cursor$SystemCursor]))
 
 (declare dungeon-crawler main-screen overlay-screen)
@@ -14,21 +16,21 @@
 
 (defn update-screen!
   [screen entities]
-  (doseq [{:keys [x y player?]} entities]
+  (doseq [{:keys [x y player?]} (vals entities)]
     (when player?
       (position! screen x y)))
   entities)
 
 (defn play-sounds!
   [entities]
-  (doseq [{:keys [play-sound]} entities]
+  (doseq [{:keys [play-sound]} (vals entities)]
     (when play-sound
       (sound! play-sound :play)))
   (map #(dissoc % :play-sound) entities))
 
 (defn render-everything!
   [screen entities]
-  (->> (find-first #(= (:id %) (:mouse-npc-id screen)) entities)
+  (->> (find-first #(= (:id %) (:mouse-npc-id screen)) (vals entities))
        (e/update-health-bar (:npc-health-bar screen))
        (conj entities)
        (render-sorted! screen ["walls"]))
@@ -58,19 +60,19 @@
                     :x start-player-x
                     :y start-player-y)]
       (r/connect-rooms! screen rooms start-room)
-      (->> [(isometric->screen screen me)
+      (ke/create-entities {} (->> [(isometric->screen screen me)
             (e/create-elementals 20)
             (e/create-ogres 20)]
            flatten
-           (reduce #(e/randomize-locations screen %1 %2) []))))
-  
+           (reduce #(e/randomize-locations screen %1 %2) [])))))
+
   :on-render
   (fn [screen entities]
     (clear!)
     (let [me (find-first :player? entities)]
       (screen! overlay-screen :on-update-health-bar :entity me)
       (->> entities
-           (map (fn [entity]
+           (ku/mmap (fn [entity]
                   (->> entity
                        (e/move screen entities)
                        (e/animate screen)
@@ -80,11 +82,11 @@
            play-sounds!
            (render-everything! screen)
            (update-screen! screen))))
-  
+
   :on-resize
   (fn [screen entities]
     (height! screen u/vertical-tiles))
-  
+
   :on-touch-down
   (fn [screen entities]
     (when (= (:button screen) (button-code :right))
@@ -92,7 +94,7 @@
             victim (u/get-entity-at-cursor screen entities)
             victim (when (u/can-attack? me victim) victim)]
         (e/attack screen me victim entities))))
-  
+
   :on-mouse-moved
   (fn [screen entities]
     (let [e (u/get-entity-at-cursor screen entities)]
@@ -106,7 +108,7 @@
   :on-show
   (fn [screen entities]
     (update! screen :camera (orthographic) :renderer (stage))
-    [(assoc (label "0" (color :white))
+    (ke/create-entities {} [(assoc (label "0" (color :white))
             :id :fps
             :x 5)
      (assoc (shape :filled)
@@ -115,28 +117,28 @@
             :y 40)
      ; this is meant for testing particle effects
      (comment assoc (particle-effect "particles/fire.p")
-            :id :particle)])
-  
+            :id :particle)]))
+
   :on-render
   (fn [screen entities]
-    (->> (for [entity entities]
+    (->> (ku/mmap (fn [entity]
            (case (:id entity)
              :fps (doto entity (label! :set-text (str (game :fps))))
-             entity))
+             entity)) entities)
          (render! screen)))
-  
+
   :on-resize
   (fn [screen entities]
     (height! screen 300)
-    (for [e entities]
+    (ku/mmap (fn [e]
       (case (:id e)
         :particle (assoc e :x (width screen) :y 0)
-        e)))
-  
+        e)) entities))
+
   ; custom function that is invoked in main-screen
   :on-update-health-bar
   (fn [screen entities]
-    (for [entity entities]
+    (ku/mmap (fn [entity]
       (case (:id entity)
         :bar (let [me (:entity screen)
                    pct (/ (:health me) (+ (:health me) (:wounds me)))]
@@ -145,7 +147,7 @@
                       :rect 0 0 u/bar-w u/bar-h
                       :set-color (color :green)
                       :rect 0 0 u/bar-w (* u/bar-h pct)))
-        entity))))
+        entity)) entities)))
 
 (defgame dungeon-crawler
   :on-create

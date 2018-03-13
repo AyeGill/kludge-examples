@@ -1,6 +1,6 @@
 (ns dungeon-crawler.rooms
   (:require [clojure.set]
-            [play-clj.core :refer :all]))
+            [kludge.core :refer :all]))
 
 (def ^:const cols 4)
 (def ^:const rows 4)
