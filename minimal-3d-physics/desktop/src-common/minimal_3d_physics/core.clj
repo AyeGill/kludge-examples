@@ -1,6 +1,7 @@
 (ns minimal-3d-physics.core
   (:require [kludge.core :refer :all]
             [kludge.g3d :refer :all]
+            [kludge.entities :as e]
             [kludge.g3d-physics :refer :all]
             [kludge.math :refer :all]
             [kludge.ui :refer :all]))
@@ -92,7 +93,7 @@
 
   :on-touch-down
   (fn [{:keys [x y] :as screen} entities]
-    (conj entities (create-box! screen 4 4)))
+    (e/create-entity entities (create-box! screen 2 2)))
 
   :on-begin-contact
   (fn [screen entities]
