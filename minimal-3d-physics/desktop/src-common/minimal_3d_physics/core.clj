@@ -1,9 +1,9 @@
 (ns minimal-3d-physics.core
-  (:require [play-clj.core :refer :all]
-            [play-clj.g3d :refer :all]
-            [play-clj.g3d-physics :refer :all]
-            [play-clj.math :refer :all]
-            [play-clj.ui :refer :all]))
+  (:require [kludge.core :refer :all]
+            [kludge.g3d :refer :all]
+            [kludge.g3d-physics :refer :all]
+            [kludge.math :refer :all]
+            [kludge.ui :refer :all]))
 
 (def ^:const mass 10)
 
@@ -74,26 +74,26 @@
                                             :set-gravity (vector-3 0 -10 0))
                           :attributes (get-environment)
                           :camera (get-camera))]
-      [(doto (create-sphere! screen 4 4)
+      (e/create-entities {} [(doto (create-sphere! screen 4 4)
          (body-position! 0 5 5))
        (doto (create-box! screen 4 4)
-         (body-position! 0 5 0))]))
-  
+         (body-position! 0 5 0))])))
+
   :on-render
   (fn [screen entities]
     (clear!)
     (->> entities
          (step! screen)
          (render! screen)))
-  
+
   :on-resize
   (fn [{:keys [width height] :as screen} entities]
     (size! screen width height))
-  
+
   :on-touch-down
   (fn [{:keys [x y] :as screen} entities]
     (conj entities (create-box! screen 4 4)))
-  
+
   :on-begin-contact
   (fn [screen entities]
     (let [e1 (first-entity screen entities)
@@ -103,23 +103,18 @@
 
 (defscreen text-screen
   :on-show
-  (fn [screen entities]
-    (update! screen :camera (orthographic) :renderer (stage))
-    (assoc (label "0" (color :white))
-           :id :fps
-           :x 5))
-  
+    (fn [screen entities]
+      (update! screen :camera (orthographic) :renderer (stage))
+      (e/create-entity {} (e/entity-uid :fps) (assoc (label "0" (color :black))
+                                                     :x 5)))
+
   :on-render
-  (fn [screen entities]
-    (->> (for [entity entities]
-           (case (:id entity)
-             :fps (doto entity (label! :set-text (str (game :fps))))
-             entity))
-         (render! screen)))
-  
+    (fn [screen entities]
+      (doto (get entities (e/entity-uid :fps)) (label! :set-text (str (game :fps))))
+      (render! screen entities))
   :on-resize
-  (fn [screen entities]
-    (height! screen 300)))
+    (fn [screen entities]
+      (height! screen 300)))
 
 (defgame minimal-3d-physics
   :on-create
