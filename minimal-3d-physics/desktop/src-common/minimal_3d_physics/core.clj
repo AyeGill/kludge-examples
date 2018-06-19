@@ -59,12 +59,28 @@
          rigid-body
          (add-body! screen))))
 
+(defn create-box-body-static!
+  [screen half-w half-h half-d]
+  (let [shape (box-shape (vector-3 half-w half-h half-d))
+        local-inertia (vector-3 0 0 0)]
+    (box-shape! shape :calculate-local-inertia mass local-inertia)
+    (->> (rigid-body-info 0 nil shape local-inertia)
+         rigid-body
+         (add-body! screen))))
+
 (defn create-box!
   [screen w h]
   (-> (model-builder)
       (model-builder! :create-box w h 2 (get-material) (get-attrs))
       model
       (assoc :body (create-box-body! screen (/ w 2) (/ h 2)))))
+
+(defn create-box-static!
+  [screen w h d]
+  (-> (model-builder)
+      (model-builder! :create-box w h d (get-material) (get-attrs))
+      model
+      (assoc :body (create-box-body-static! screen (/ w 2) (/ h 2) (/ d 2)))))
 
 (defscreen main-screen
   :on-show
@@ -77,6 +93,8 @@
                           :camera (get-camera))]
       (e/create-entities {} [(doto (create-sphere! screen 4 4)
          (body-position! 0 5 5))
+        (doto (create-box-static! screen 10 1 10)
+          (body-position! 0 0 0))
        (doto (create-box! screen 4 4)
          (body-position! 0 5 0))])))
 
@@ -106,7 +124,7 @@
   :on-show
     (fn [screen entities]
       (update! screen :camera (orthographic) :renderer (stage))
-      (e/create-entity {} (e/entity-uid :fps) (assoc (label "0" (color :black))
+      (e/create-entity {} (e/entity-uid :fps) (assoc (label "0" (color :white))
                                                      :x 5)))
 
   :on-render
